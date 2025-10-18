@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+
+{% block title %}Allocation - Investment Planner{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">
+            <i class="fas fa-chart-pie me-2"></i>Investment Allocation
+        </h1>
+    </div>
+</div>
+
+<!-- Current Allocation Summary -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-pie me-2"></i>Current Allocation Strategy
+                </h5>
+                <span class="badge bg-primary">${{ "{:,.2f}".format(contribution) }} bi-weekly</span>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for bucket in allocation %}
+                    <div class="col-md-3 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <h6 class="card-title">{{ bucket.Bucket }}</h6>
+                                <h4 class="text-primary">{{ bucket['Allocation %'] }}%</h4>
+                                <p class="card-text">${{ "{:,.2f}".format(bucket['Bi-Weekly $']) }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="mt-3">
+                    <button class="btn btn-outline-primary" onclick="editContribution()">
+                        <i class="fas fa-edit me-1"></i>Edit Contribution Amount
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Suggested Buys -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-shopping-cart me-2"></i>Suggested Buys
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover" id="suggestedBuysTable">
+                        <thead>
+                            <tr>
+                                <th>Bucket</th>
+                                <th>Ticker</th>
+                                <th>Current Price</th>
+                                <th>$ Allocation</th>
+                                <th>Suggested Shares</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for buy in suggested_buys %}
+                            <tr>
+                                <td>
+                                    <span class="badge bg-secondary">{{ buy.Bucket }}</span>
+                                </td>
+                                <td><strong>{{ buy.Ticker }}</strong></td>
+                                <td>${{ "{:.2f}".format(buy.Price) }}</td>
+                                <td>${{ "{:,.2f}".format(buy['$ Allocation']) }}</td>
+                                <td>{{ "{:.4f}".format(buy.Shares) }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="researchStock('{{ buy.Ticker }}')">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Investment Buckets Configuration -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-cogs me-2"></i>Investment Buckets
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for bucket_name, bucket_info in buckets.items() %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">{{ bucket_name }}</h6>
+                                <small class="text-muted">{{ bucket_info.percentage }}% allocation</small>
+                            </div>
+                            <div class="card-body">
+                                <h6>Tickers:</h6>
+                                <div class="d-flex flex-wrap gap-1">
+                                    {% for ticker in bucket_info.tickers %}
+                                    <span class="badge bg-primary">{{ ticker }}</span>
+                                    {% endfor %}
+                                </div>
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        ${{ "{:,.2f}".format(contribution * bucket_info.percentage / 100) }} per pay period
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Note:</strong> To modify the allocation percentages or add/remove tickers from buckets, 
+                    edit the <code>config.json</code> file and restart the application.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Contribution Modal -->
+<div class="modal fade" id="editContributionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Bi-Weekly Contribution</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="contributionForm">
+                    <div class="mb-3">
+                        <label for="contribution" class="form-label">Contribution Amount ($)</label>
+                        <input type="number" class="form-control" id="contribution" 
+                               value="{{ contribution }}" min="0" step="0.01" required>
+                        <div class="form-text">This amount will be distributed across all investment buckets according to their percentages.</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="updateContribution()">Update</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function editContribution() {
+    $('#editContributionModal').modal('show');
+}
+
+function updateContribution() {
+    const contribution = parseFloat($('#contribution').val());
+    
+    if (contribution <= 0) {
+        alert('Contribution must be positive');
+        return;
+    }
+    
+    fetch('/api/update_contribution', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ contribution: contribution })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            $('#editContributionModal').modal('hide');
+            location.reload();
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while updating contribution');
+    });
+}
+
+function researchStock(ticker) {
+    // Redirect to research page with the ticker pre-filled
+    window.location.href = `/research?ticker=${ticker}`;
+}
+
+// Initialize DataTable for suggested buys
+$(document).ready(function() {
+    $('#suggestedBuysTable').DataTable({
+        "pageLength": 25,
+        "order": [[ 0, "asc" ]], // Sort by bucket
+        "columnDefs": [
+            { "orderable": false, "targets": 5 } // Disable sorting on Actions column
+        ]
+    });
+});
+</script>
+
+<!-- DataTables CSS and JS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+{% endblock %}

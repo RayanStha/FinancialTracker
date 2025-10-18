@@ -1,0 +1,323 @@
+{% extends "base.html" %}
+
+{% block title %}Stock Research - Investment Planner{% endblock %}
+
+{% block extra_head %}
+<!-- DataTables CSS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">
+            <i class="fas fa-search me-2"></i>Stock Research
+        </h1>
+    </div>
+</div>
+
+<!-- Stock Search -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-search me-2"></i>Search Stock Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="stockSearch" placeholder="Enter ticker symbol (e.g., AAPL, MSFT, NVDA, TSLA)">
+                            <button class="btn btn-primary" onclick="searchStock()">
+                                <i class="fas fa-search me-1"></i>Search
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-secondary" onclick="loadPortfolioNews()">
+                                <i class="fas fa-newspaper me-1"></i>Portfolio News
+                            </button>
+                            <button class="btn btn-outline-info" onclick="loadAllPrices()">
+                                <i class="fas fa-chart-line me-1"></i>All Prices
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search Results -->
+<div class="row mb-4" id="searchResults" style="display: none;">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-line me-2"></i>Stock Information
+                </h5>
+                <span id="searchTicker" class="badge bg-primary"></span>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Current Quote</h6>
+                        <div id="quoteInfo" class="table-responsive">
+                            <!-- Quote information will be loaded here -->
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Recent News</h6>
+                        <div id="newsInfo" class="news-container">
+                            <!-- News will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Portfolio News -->
+<div class="row mb-4" id="portfolioNews">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-newspaper me-2"></i>Portfolio News
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if news %}
+                <div class="row">
+                    {% for article in news %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span class="badge bg-primary">{{ article.Ticker }}</span>
+                                    <small class="text-muted">{{ article.Source }}</small>
+                                </div>
+                                <h6 class="card-title">{{ article.Headline }}</h6>
+                                <p class="card-text">
+                                    <small class="text-muted">{{ article.Published }}</small>
+                                </p>
+                                <a href="{{ article.URL }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-external-link-alt me-1"></i>Read More
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">No news available</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Current Prices -->
+<div class="row" id="allPrices" style="display: none;">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-line me-2"></i>Current Prices
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover" id="pricesTable">
+                        <thead>
+                            <tr>
+                                <th>Ticker</th>
+                                <th>Current Price</th>
+                                <th>Change</th>
+                                <th>Change %</th>
+                                <th>Last Updated</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ticker, quote in quotes.items() %}
+                            <tr>
+                                <td><strong>{{ ticker }}</strong></td>
+                                <td>${{ "{:.2f}".format(quote.get('price') or 0) }}</td>
+                                <td class="{{ 'text-success' if (quote.get('change') or 0) >= 0 else 'text-danger' }}">
+                                    ${{ "{:.2f}".format(quote.get('change') or 0) }}
+                                </td>
+                                <td class="{{ 'text-success' if (quote.get('change_percent') or 0) >= 0 else 'text-danger' }}">
+                                    {{ "{:.2f}".format(quote.get('change_percent') or 0) }}%
+                                </td>
+                                <td>{{ quote.get('timestamp', 'N/A') }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="searchSpecificStock('{{ ticker }}')">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Spinner -->
+<div class="text-center" id="loadingSpinner" style="display: none;">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2">Loading stock information...</p>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<!-- DataTables JS -->
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
+function searchStock() {
+    const ticker = $('#stockSearch').val().toUpperCase().trim();
+    if (!ticker) {
+        alert('Please enter a ticker symbol');
+        return;
+    }
+    
+    searchSpecificStock(ticker);
+}
+
+function searchSpecificStock(ticker) {
+    $('#loadingSpinner').show();
+    $('#searchResults').hide();
+    $('#portfolioNews').hide();
+    $('#allPrices').hide();
+    
+    fetch(`/api/stock_info/${ticker}`)
+    .then(response => response.json())
+    .then(data => {
+        $('#loadingSpinner').hide();
+        
+        if (data.error) {
+            alert('Error: ' + data.error);
+            return;
+        }
+        
+        displayStockInfo(data);
+    })
+    .catch(error => {
+        $('#loadingSpinner').hide();
+        console.error('Error:', error);
+        alert('An error occurred while fetching stock information');
+    });
+}
+
+function displayStockInfo(data) {
+    const ticker = data.ticker;
+    const quote = data.quote;
+    const news = data.news;
+    
+    $('#searchTicker').text(ticker);
+    
+    // Display quote information
+    const quoteHtml = `
+        <table class="table table-sm">
+            <tr>
+                <td><strong>Current Price:</strong></td>
+                <td class="fs-5 fw-bold">$${quote.price ? quote.price.toFixed(2) : 'N/A'}</td>
+            </tr>
+            <tr>
+                <td><strong>Change:</strong></td>
+                <td class="${quote.change >= 0 ? 'text-success' : 'text-danger'}">
+                    $${quote.change ? quote.change.toFixed(2) : 'N/A'}
+                </td>
+            </tr>
+            <tr>
+                <td><strong>Change %:</strong></td>
+                <td class="${quote.change_percent >= 0 ? 'text-success' : 'text-danger'}">
+                    ${quote.change_percent ? quote.change_percent.toFixed(2) + '%' : 'N/A'}
+                </td>
+            </tr>
+            <tr>
+                <td><strong>Last Updated:</strong></td>
+                <td>${quote.timestamp || 'N/A'}</td>
+            </tr>
+        </table>
+    `;
+    $('#quoteInfo').html(quoteHtml);
+    
+    // Display news
+    let newsHtml = '';
+    if (news && news.length > 0) {
+        news.forEach(article => {
+            newsHtml += `
+                <div class="card mb-2">
+                    <div class="card-body p-2">
+                        <h6 class="card-title mb-1">${article.headline}</h6>
+                        <p class="card-text mb-1">
+                            <small class="text-muted">${article.source} - ${new Date(article.published * 1000).toLocaleDateString()}</small>
+                        </p>
+                        <a href="${article.url}" target="_blank" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-external-link-alt me-1"></i>Read More
+                        </a>
+                    </div>
+                </div>
+            `;
+        });
+    } else {
+        newsHtml = '<p class="text-muted">No recent news available for this ticker</p>';
+    }
+    $('#newsInfo').html(newsHtml);
+    
+    $('#searchResults').show();
+}
+
+function loadPortfolioNews() {
+    $('#portfolioNews').show();
+    $('#allPrices').hide();
+    $('#searchResults').hide();
+}
+
+function loadAllPrices() {
+    $('#allPrices').show();
+    $('#portfolioNews').hide();
+    $('#searchResults').hide();
+    
+    // Initialize DataTable if not already initialized
+    if (!$.fn.DataTable.isDataTable('#pricesTable')) {
+        try {
+            $('#pricesTable').DataTable({
+                "pageLength": 25,
+                "order": [[ 1, "desc" ]], // Sort by price
+                "columnDefs": [
+                    { "orderable": false, "targets": 5 } // Disable sorting on Actions column
+                ]
+            });
+        } catch (error) {
+            console.log('DataTable initialization error:', error);
+        }
+    }
+}
+
+// Initialize page
+$(document).ready(function() {
+    // Show portfolio news by default
+    loadPortfolioNews();
+});
+
+// Allow Enter key to search
+$('#stockSearch').keypress(function(e) {
+    if (e.which == 13) {
+        searchStock();
+    }
+});
+</script>
+{% endblock %}

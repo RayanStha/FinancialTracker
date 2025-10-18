@@ -1,0 +1,258 @@
+{% extends "base.html" %}
+
+{% block title %}Portfolio - Investment Planner{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>
+                <i class="fas fa-briefcase me-2"></i>Portfolio Management
+            </h1>
+            <button class="btn btn-primary" onclick="showAddHoldingModal()">
+                <i class="fas fa-plus me-1"></i>Add Holding
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Portfolio Holdings Table -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-table me-2"></i>Current Holdings
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover" id="holdingsTable">
+                        <thead>
+                            <tr>
+                                <th>Ticker</th>
+                                <th>Company Name</th>
+                                <th>Shares</th>
+                                <th>Avg Cost</th>
+                                <th>Current Price</th>
+                                <th>Market Value</th>
+                                <th>Cost Basis</th>
+                                <th>Gain/Loss $</th>
+                                <th>Gain/Loss %</th>
+                                <th>Category</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for holding in holdings %}
+                            <tr data-ticker="{{ holding.Ticker }}">
+                                <td><strong>{{ holding.Ticker }}</strong></td>
+                                <td>{{ holding['Company Name'] }}</td>
+                                <td class="editable" data-field="shares">{{ "{:.4f}".format(holding.Shares) }}</td>
+                                <td class="editable" data-field="avg_cost">${{ "{:.2f}".format(holding['Avg Cost']) }}</td>
+                                <td>${{ "{:.2f}".format(holding['Current Price']) }}</td>
+                                <td>${{ "{:,.2f}".format(holding['Market Value']) }}</td>
+                                <td>${{ "{:,.2f}".format(holding['Cost Basis']) }}</td>
+                                <td class="{{ 'text-success' if holding['Gain/Loss $'] >= 0 else 'text-danger' }}">
+                                    ${{ "{:,.2f}".format(holding['Gain/Loss $']) }}
+                                </td>
+                                <td class="{{ 'text-success' if holding['Gain/Loss %'] >= 0 else 'text-danger' }}">
+                                    {{ "{:.2f}".format(holding['Gain/Loss %']) }}%
+                                </td>
+                                <td>{{ holding.Category }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="editHolding('{{ holding.Ticker }}')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Holding Modal -->
+<div class="modal fade" id="addHoldingModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Holding</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addHoldingForm">
+                    <div class="mb-3">
+                        <label for="ticker" class="form-label">Ticker Symbol *</label>
+                        <input type="text" class="form-control" id="ticker" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="companyName" class="form-label">Company Name *</label>
+                        <input type="text" class="form-control" id="companyName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="shares" class="form-label">Shares</label>
+                        <input type="number" class="form-control" id="shares" value="0" min="0" step="0.0001">
+                    </div>
+                    <div class="mb-3">
+                        <label for="avgCost" class="form-label">Average Cost ($)</label>
+                        <input type="number" class="form-control" id="avgCost" value="0" min="0" step="0.01">
+                    </div>
+                    <div class="mb-3">
+                        <label for="category" class="form-label">Category</label>
+                        <select class="form-select" id="category">
+                            <option value="ETF/Index">ETF/Index</option>
+                            <option value="BlueChip/Core">BlueChip/Core</option>
+                            <option value="Growth">Growth</option>
+                            <option value="Speculative">Speculative</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="addHolding()">Add Holding</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Holding Modal -->
+<div class="modal fade" id="editHoldingModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Holding</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editHoldingForm">
+                    <input type="hidden" id="editTicker">
+                    <div class="mb-3">
+                        <label for="editShares" class="form-label">Shares</label>
+                        <input type="number" class="form-control" id="editShares" min="0" step="0.0001">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editAvgCost" class="form-label">Average Cost ($)</label>
+                        <input type="number" class="form-control" id="editAvgCost" min="0" step="0.01">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="updateHolding()">Update</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function showAddHoldingModal() {
+    $('#addHoldingModal').modal('show');
+}
+
+function addHolding() {
+    const ticker = $('#ticker').val().toUpperCase();
+    const companyName = $('#companyName').val();
+    const shares = parseFloat($('#shares').val()) || 0;
+    const avgCost = parseFloat($('#avgCost').val()) || 0;
+    const category = $('#category').val();
+    
+    if (!ticker || !companyName) {
+        alert('Ticker and Company Name are required');
+        return;
+    }
+    
+    fetch('/api/add_holding', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            ticker: ticker,
+            company_name: companyName,
+            shares: shares,
+            avg_cost: avgCost,
+            category: category
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            $('#addHoldingModal').modal('hide');
+            location.reload();
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while adding holding');
+    });
+}
+
+function editHolding(ticker) {
+    const row = $(`tr[data-ticker="${ticker}"]`);
+    const shares = row.find('[data-field="shares"]').text();
+    const avgCost = row.find('[data-field="avg_cost"]').text().replace('$', '');
+    
+    $('#editTicker').val(ticker);
+    $('#editShares').val(shares);
+    $('#editAvgCost').val(avgCost);
+    
+    $('#editHoldingModal').modal('show');
+}
+
+function updateHolding() {
+    const ticker = $('#editTicker').val();
+    const shares = parseFloat($('#editShares').val()) || 0;
+    const avgCost = parseFloat($('#editAvgCost').val()) || 0;
+    
+    fetch('/api/update_holding', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            ticker: ticker,
+            shares: shares,
+            avg_cost: avgCost
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            $('#editHoldingModal').modal('hide');
+            location.reload();
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while updating holding');
+    });
+}
+
+// Initialize DataTable for better table functionality
+$(document).ready(function() {
+    $('#holdingsTable').DataTable({
+        "pageLength": 25,
+        "order": [[ 7, "desc" ]], // Sort by Gain/Loss %
+        "columnDefs": [
+            { "orderable": false, "targets": 10 } // Disable sorting on Actions column
+        ]
+    });
+});
+</script>
+
+<!-- DataTables CSS and JS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+{% endblock %}

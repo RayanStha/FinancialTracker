@@ -1,0 +1,90 @@
+{
+  "allocation_buckets": {
+    "Core / Tech": {
+      "percentage": 25,
+      "tickers": ["AAPL", "MSFT", "GOOGL", "AVGO"]
+    },
+    "Growth / AI": {
+      "percentage": 30,
+      "tickers": ["NVDA", "AMZN", "TSLA", "CRWD", "PANW"]
+    },
+    "Dividend / Defensive": {
+      "percentage": 20,
+      "tickers": ["UNH", "UPS", "VST", "AB"]
+    },
+    "Speculative / High Risk": {
+      "percentage": 15,
+      "tickers": ["HIMS", "ZYNE", "BULL"]
+    },
+    "Future Additions": {
+      "percentage": 10,
+      "tickers": ["VTI", "VOO", "SCHD"]
+    }
+  },
+  "core_longterm": {
+    "NVDA": {
+      "target_percentage": 15,
+      "notes": "AI leader, long-term hold"
+    },
+    "AAPL": {
+      "target_percentage": 12,
+      "notes": "Core portfolio anchor"
+    },
+    "MSFT": {
+      "target_percentage": 10,
+      "notes": "Cloud + AI growth"
+    },
+    "GOOGL": {
+      "target_percentage": 8,
+      "notes": "Advertising + AI"
+    },
+    "AVGO": {
+      "target_percentage": 8,
+      "notes": "Dividend + chip exposure"
+    },
+    "AMZN": {
+      "target_percentage": 7,
+      "notes": "Long-term e-commerce play"
+    },
+    "CRWD": {
+      "target_percentage": 6,
+      "notes": "Strong momentum stock"
+    },
+    "PANW": {
+      "target_percentage": 5,
+      "notes": "Security sector exposure"
+    },
+    "TSLA": {
+      "target_percentage": 4,
+      "notes": "High risk, long-term"
+    },
+    "UNH": {
+      "target_percentage": 4,
+      "notes": "Healthcare stability"
+    },
+    "UPS": {
+      "target_percentage": 3,
+      "notes": "Dividend yield stock"
+    },
+    "VST": {
+      "target_percentage": 3,
+      "notes": "Utility stability"
+    },
+    "AB": {
+      "target_percentage": 2,
+      "notes": "Dividend reinvestment candidate"
+    },
+    "HIMS": {
+      "target_percentage": 2,
+      "notes": "Small-cap growth potential"
+    },
+    "ZYNE": {
+      "target_percentage": 1,
+      "notes": "High risk, small position"
+    },
+    "BULL": {
+      "target_percentage": 1,
+      "notes": "High risk, consider replacing"
+    }
+  }
+}
