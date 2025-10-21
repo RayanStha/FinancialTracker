@@ -1,2 +1,55 @@
-/env_example.txt
-/.env
+# Environment Variables
+.env
+.env.local
+.env.*.local
+env_example.txt
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+env/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Excel Files (if you don't want to track generated files)
+*.xlsx
+!example.xlsx
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.bak
