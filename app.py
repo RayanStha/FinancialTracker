@@ -13,6 +13,10 @@ from datetime import datetime
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, send_file
 from werkzeug.utils import secure_filename
 import tempfile
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 from invest_plan import InvestmentPlanner
 

@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Financial Tracker - A bi-weekly investment planner with real-time market data and portfolio management">
+    <title>Financial Tracker - Investment Portfolio Manager</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --dark-bg: #0f172a;
+            --light-bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--light-bg);
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        header p {
+            font-size: 1.25rem;
+            opacity: 0.95;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Navigation */
+        nav {
+            background: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s;
+        }
+
+        nav a:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        /* Section */
+        section {
+            margin-bottom: 4rem;
+        }
+
+        section h2 {
+            font-size: 2rem;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        section h2 i {
+            color: var(--primary-color);
+        }
+
+        /* Feature Grid */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-card i {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+        }
+
+        /* Tech Stack */
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .tech-badge {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Code Block */
+        .code-block {
+            background: var(--dark-bg);
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .code-block pre {
+            margin: 0;
+        }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: 2px solid;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* Screenshots */
+        .screenshot-placeholder {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 1rem;
+            padding: 3rem;
+            text-align: center;
+            color: white;
+            margin: 2rem 0;
+        }
+
+        .screenshot-placeholder i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        /* API Providers */
+        .api-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .api-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 2px solid var(--border-color);
+            text-align: center;
+        }
+
+        .api-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark-bg);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 4rem;
+        }
+
+        footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            header p {
+                font-size: 1rem;
+            }
+
+            nav ul {
+                gap: 1rem;
+            }
+
+            .container {
+                padding: 2rem 1rem;
+            }
+
+            section h2 {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            background: var(--success-color);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>
+            <i class="fas fa-chart-line"></i>
+            Financial Tracker
+        </h1>
+        <p>A comprehensive bi-weekly investment planner with real-time market data, portfolio management, and intelligent allocation strategies</p>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#features"><i class="fas fa-star"></i> Features</a></li>
+            <li><a href="#tech-stack"><i class="fas fa-code"></i> Tech Stack</a></li>
+            <li><a href="#setup"><i class="fas fa-rocket"></i> Setup</a></li>
+            <li><a href="#api"><i class="fas fa-plug"></i> API Support</a></li>
+            <li><a href="https://github.com/YOUR-USERNAME/FinancialTracker" target="_blank"><i class="fab fa-github"></i> GitHub</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <!-- Overview -->
+        <section id="overview">
+            <h2><i class="fas fa-info-circle"></i> Overview</h2>
+            <p style="font-size: 1.1rem; color: var(--text-secondary); line-height: 1.8;">
+                Financial Tracker is a Flask-based web application designed to help you manage your investment portfolio with ease. 
+                It fetches real-time stock quotes and news from multiple API providers, calculates optimal bi-weekly allocations, 
+                and provides comprehensive portfolio analytics. Whether you're a seasoned investor or just starting out, 
+                Financial Tracker gives you the tools to make informed investment decisions.
+            </p>
+            <div class="btn-group">
+                <a href="https://github.com/YOUR-USERNAME/FinancialTracker" class="btn btn-primary" target="_blank">
+                    <i class="fab fa-github"></i> View on GitHub
+                </a>
+                <a href="#setup" class="btn btn-secondary">
+                    <i class="fas fa-download"></i> Get Started
+                </a>
+            </div>
+        </section>
+
+        <!-- Features -->
+        <section id="features">
+            <h2><i class="fas fa-star"></i> Key Features</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <h3>Dashboard</h3>
+                    <p>Get a comprehensive overview of your portfolio with real-time market values, gains/losses, and performance metrics at a glance.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-briefcase"></i>
+                    <h3>Portfolio Management</h3>
+                    <p>Track all your holdings with detailed information including shares, average cost, current prices, and profit/loss calculations.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-chart-pie"></i>
+                    <h3>Smart Allocation</h3>
+                    <p>Intelligent bi-weekly investment allocation based on your target percentages and current portfolio balance.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-newspaper"></i>
+                    <h3>Stock Research</h3>
+                    <p>Access real-time stock quotes and latest news articles for all your holdings and potential investments.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-sync-alt"></i>
+                    <h3>Multi-API Support</h3>
+                    <p>Automatic fallback between Finnhub, Polygon.io, and Alpha Vantage APIs for reliable data access.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-file-excel"></i>
+                    <h3>Excel Export</h3>
+                    <p>Export your complete portfolio analysis to Excel workbooks with multiple sheets and formatted data.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Screenshots -->
+        <section id="screenshots">
+            <h2><i class="fas fa-images"></i> Application Preview</h2>
+            <div class="screenshot-placeholder">
+                <i class="fas fa-desktop"></i>
+                <h3>Interactive Web Interface</h3>
+                <p>Modern, responsive design with real-time data updates and intuitive navigation</p>
+            </div>
+        </section>
+
+        <!-- Tech Stack -->
+        <section id="tech-stack">
+            <h2><i class="fas fa-code"></i> Technology Stack</h2>
+            <div class="tech-stack">
+                <span class="tech-badge"><i class="fab fa-python"></i> Python 3.13</span>
+                <span class="tech-badge"><i class="fas fa-flask"></i> Flask</span>
+                <span class="tech-badge"><i class="fas fa-table"></i> Pandas</span>
+                <span class="tech-badge"><i class="fas fa-file-excel"></i> XlsxWriter</span>
+                <span class="tech-badge"><i class="fas fa-network-wired"></i> REST APIs</span>
+                <span class="tech-badge"><i class="fab fa-html5"></i> HTML5</span>
+                <span class="tech-badge"><i class="fab fa-css3-alt"></i> CSS3</span>
+                <span class="tech-badge"><i class="fab fa-js"></i> JavaScript</span>
+            </div>
+        </section>
+
+        <!-- API Providers -->
+        <section id="api">
+            <h2><i class="fas fa-plug"></i> Supported API Providers</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                Financial Tracker supports multiple market data providers with automatic fallback for maximum reliability:
+            </p>
+            <div class="api-grid">
+                <div class="api-card">
+                    <h4>🔷 Finnhub</h4>
+                    <p style="color: var(--text-secondary);">Primary provider with comprehensive stock data and news</p>
+                    <a href="https://finnhub.io" target="_blank" style="color: var(--primary-color); font-size: 0.9rem;">finnhub.io →</a>
+                </div>
+                <div class="api-card">
+                    <h4>🟣 Polygon.io</h4>
+                    <p style="color: var(--text-secondary);">Alternative provider with extensive market data</p>
+                    <a href="https://polygon.io" target="_blank" style="color: var(--primary-color); font-size: 0.9rem;">polygon.io →</a>
+                </div>
+                <div class="api-card">
+                    <h4>🔶 Alpha Vantage</h4>
+                    <p style="color: var(--text-secondary);">Reliable backup provider for quotes and analysis</p>
+                    <a href="https://www.alphavantage.co" target="_blank" style="color: var(--primary-color); font-size: 0.9rem;">alphavantage.co →</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Setup Instructions -->
+        <section id="setup">
+            <h2><i class="fas fa-rocket"></i> Getting Started</h2>
+            
+            <h3 style="margin-top: 2rem; margin-bottom: 1rem;">1. Clone the Repository</h3>
+            <div class="code-block">
+<pre>git clone https://github.com/YOUR-USERNAME/FinancialTracker.git
+cd FinancialTracker</pre>
+            </div>
+
+            <h3 style="margin-top: 2rem; margin-bottom: 1rem;">2. Install Dependencies</h3>
+            <div class="code-block">
+<pre>pip install -r requirements.txt</pre>
+            </div>
+
+            <h3 style="margin-top: 2rem; margin-bottom: 1rem;">3. Configure API Keys</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                Create a <code style="background: var(--border-color); padding: 0.2rem 0.5rem; border-radius: 0.25rem;">.env</code> file in the root directory:
+            </p>
+            <div class="code-block">
+<pre># Get free API keys from the providers
+FINNHUB_API_KEY=your_finnhub_api_key
+POLYGON_API_KEY=your_polygon_api_key
+ALPHA_VANTAGE_API_KEY=your_alpha_vantage_api_key
+SECRET_KEY=your_flask_secret_key</pre>
+            </div>
+
+            <h3 style="margin-top: 2rem; margin-bottom: 1rem;">4. Run the Application</h3>
+            <div class="code-block">
+<pre>python app.py</pre>
+            </div>
+            <p style="color: var(--text-secondary); margin-top: 1rem;">
+                Open your browser and navigate to <strong>http://localhost:5000</strong>
+            </p>
+
+            <h3 style="margin-top: 2rem; margin-bottom: 1rem;">5. Command-Line Tool (Optional)</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                Generate Excel reports directly from the command line:
+            </p>
+            <div class="code-block">
+<pre>python invest_plan.py --contribution 1000 --provider finnhub</pre>
+            </div>
+        </section>
+
+        <!-- Features List -->
+        <section id="detailed-features">
+            <h2><i class="fas fa-list-check"></i> Detailed Features</h2>
+            <div style="background: white; padding: 2rem; border-radius: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <ul style="list-style: none; padding: 0;">
+                    <li style="padding: 0.75rem 0; border-bottom: 1px solid var(--border-color);"><i class="fas fa-check" style="color: var(--success-color); margin-right: 0.5rem;"></i> Real-time stock price fetching from multiple providers</li>
+                    <li style="padding: 0.75rem 0; border-bottom: 1px solid var(--border-color);"><i class="fas fa-check" style="color: var(--success-color); margin-right: 0.5rem;"></i> Automatic API provider fallback for reliability</li>
+                    <li style="padding: 0.75rem 0; border-bottom: 1px solid var(--border-color);"><i class="fas fa-check" style="color: var(--success-color); margin-right: 0.5rem;"></i> Portfolio performance tracking with gain/loss calculations</li>
+                    <li style="padding: 0.75rem 0; border-bottom: 1px solid var(--border-color);"><i class="fas fa-check" style="color: var(--success-color); margin-right: 0.5rem;"></i> Configurable allocation buckets (Core, Growth, Dividend, Speculative)</li>
+                    <li style="padding: 0.75rem 0; border-bottom: 1px solid var(--border-color);"><i class="fas fa-check" style="color: var(--success-color); margin-right: 0.5rem;"></i> Bi-weekly investment suggestions based on target allocations</li>
+                    <li style="padding: 0.75rem 0; border-bottom: 1px solid var(--border-color);"><i class="fas fa-check" style="color: var(--success-color); margin-right: 0.5rem;"></i> Stock news aggregation for research</li>
+                    <li style="padding: 0.75rem 0; border-bottom: 1px solid var(--border-color);"><i class="fas fa-check" style="color: var(--success-color); margin-right: 0.5rem;"></i> Excel export with formatted workbooks</li>
+                    <li style="padding: 0.75rem 0; border-bottom: 1px solid var(--border-color);"><i class="fas fa-check" style="color: var(--success-color); margin-right: 0.5rem;"></i> RESTful API endpoints for data access</li>
+                    <li style="padding: 0.75rem 0; border-bottom: 1px solid var(--border-color);"><i class="fas fa-check" style="color: var(--success-color); margin-right: 0.5rem;"></i> Responsive web interface</li>
+                    <li style="padding: 0.75rem 0;"><i class="fas fa-check" style="color: var(--success-color); margin-right: 0.5rem;"></i> Customizable portfolio configuration via JSON</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Configuration -->
+        <section id="configuration">
+            <h2><i class="fas fa-cog"></i> Configuration</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                Customize your portfolio allocation and holdings by editing <code style="background: var(--border-color); padding: 0.2rem 0.5rem; border-radius: 0.25rem;">config.json</code>:
+            </p>
+            <div class="code-block">
+<pre>{
+  "allocation_buckets": {
+    "Core / Tech": {
+      "percentage": 25,
+      "tickers": ["AAPL", "MSFT", "GOOGL"]
+    },
+    "Growth / AI": {
+      "percentage": 30,
+      "tickers": ["NVDA", "AMZN", "TSLA"]
+    }
+  }
+}</pre>
+            </div>
+        </section>
+
+        <!-- Contributing -->
+        <section id="contributing">
+            <h2><i class="fas fa-code-branch"></i> Contributing</h2>
+            <p style="color: var(--text-secondary); line-height: 1.8;">
+                Contributions are welcome! Feel free to open issues or submit pull requests on GitHub. 
+                Whether it's bug fixes, new features, or documentation improvements, your contributions help make 
+                Financial Tracker better for everyone.
+            </p>
+            <div class="btn-group">
+                <a href="https://github.com/YOUR-USERNAME/FinancialTracker/issues" class="btn btn-secondary" target="_blank">
+                    <i class="fas fa-bug"></i> Report Issues
+                </a>
+                <a href="https://github.com/YOUR-USERNAME/FinancialTracker/pulls" class="btn btn-secondary" target="_blank">
+                    <i class="fas fa-code-pull-request"></i> Submit PR
+                </a>
+            </div>
+        </section>
+
+        <!-- License -->
+        <section id="license">
+            <h2><i class="fas fa-scale-balanced"></i> License</h2>
+            <p style="color: var(--text-secondary);">
+                This project is open source and available under the MIT License. See the LICENSE file for more details.
+            </p>
+        </section>
+    </div>
+
+    <footer>
+        <p>
+            <strong>Financial Tracker</strong> - Built with <i class="fas fa-heart" style="color: #ef4444;"></i> using Python & Flask
+        </p>
+        <p style="margin-top: 0.5rem; opacity: 0.8;">
+            <a href="https://github.com/YOUR-USERNAME/FinancialTracker" target="_blank">
+                <i class="fab fa-github"></i> View Source on GitHub
+            </a>
+        </p>
+    </footer>
+
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add active state to navigation
+        const sections = document.querySelectorAll('section');
+        const navLinks = document.querySelectorAll('nav a');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollY >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.style.background = '';
+                link.style.color = '';
+                if (link.getAttribute('href').substring(1) === current) {
+                    link.style.background = 'var(--primary-color)';
+                    link.style.color = 'white';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+

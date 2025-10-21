@@ -119,15 +119,42 @@ class InvestmentPlanner:
         return default_config
     
     def _get_api_client(self):
-        """Initialize the appropriate API client based on provider."""
-        if self.provider == 'finnhub':
-            return FinnhubClient()
-        elif self.provider == 'polygon':
-            return PolygonClient()
-        elif self.provider == 'alpha':
-            return AlphaVantageClient()
-        else:
-            raise ValueError(f"Unsupported provider: {self.provider}")
+        """Initialize the appropriate API client with automatic fallback."""
+        # Try providers in order of preference
+        providers_to_try = [self.provider]
+        
+        # Add other providers as fallbacks
+        all_providers = ['finnhub', 'polygon', 'alpha']
+        for provider in all_providers:
+            if provider not in providers_to_try:
+                providers_to_try.append(provider)
+        
+        last_error = None
+        for provider in providers_to_try:
+            try:
+                logger.info(f"Attempting to initialize {provider} provider...")
+                
+                if provider == 'finnhub':
+                    client = FinnhubClient()
+                elif provider == 'polygon':
+                    client = PolygonClient()
+                elif provider == 'alpha':
+                    client = AlphaVantageClient()
+                else:
+                    continue
+                
+                # Update provider to the one that worked
+                self.provider = provider
+                logger.info(f"Successfully initialized {provider} provider")
+                return client
+                
+            except Exception as e:
+                logger.warning(f"Failed to initialize {provider} provider: {e}")
+                last_error = e
+                continue
+        
+        # If we get here, all providers failed
+        raise ValueError(f"All API providers failed. Last error: {last_error}")
     
     def _initialize_holdings(self) -> pd.DataFrame:
         """Initialize current holdings data."""
